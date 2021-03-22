@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Post;
 use App\Form\PostType;
+use App\Services\FileUploader;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Repository\PostRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,7 +34,7 @@ class PostController extends AbstractController
     /**
      * @Route("/create", name="create")
      */
-    public function create(Request $request)
+    public function create(Request $request, FileUploader $fileUploader)
     {   
         $post = new Post();
 
@@ -40,29 +42,23 @@ class PostController extends AbstractController
         $form->handleRequest($request);
         // $form->getErrors();
         // if ($form->isSubmitted() && $form->isValid()){
+            
         if ($form->isSubmitted()){
 
             $em = $this->getDoctrine()->getManager();
-            /** @var UploadedFile $file */
 
+            /** @var UploadedFile $file */
             $file = $request->files->get('post')['image'];
 
             if($file){
-                $filename = md5(uniqid()) . '.' . $file->guessClientExtension();
-
-                $file->move(
-                     $this->getParameter('uploads_dir'),
-                     $filename
-                );
+                $filename = $fileUploader->uploadFile($file);
 
                 $post->setImage($filename);
-
+                $em->persist($post);
+                $em->flush();
             }
 
 
-            $post->setImage($filename);
-            $em->persist($post);
-            $em->flush();
         }
 
         return $this->render('post/create.html.twig', ['form' => $form->createView()]);
@@ -71,9 +67,8 @@ class PostController extends AbstractController
     /**
      * @Route("/show/{id?}", name="show")
      */
-    public function show($id ,PostRepository $postRepository): Response
+    public function show(Post $post): Response
     {
-        $post = $postRepository->find($id);
         return $this->render('post/show.html.twig', [
             'post' => $post
         ]);
