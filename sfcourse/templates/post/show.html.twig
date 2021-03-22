@@ -3,7 +3,9 @@
 
 	<div class="container mt-5">
 		<h1 class="text-center">{{ post.title }}</h1>
-		<img src="{{ '/uploads/images/' ~ post.image }}"></img>
+		<h1 class="text-center">{{ post.category }}</h1>
+		<h1 class="text-center">{{ post.category.id }}</h1>
+		<img src="{{ '/uploads/' ~ post.image }}"></img>
 	</div>
 
 {% endblock %}

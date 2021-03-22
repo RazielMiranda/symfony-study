@@ -47,8 +47,6 @@ class PostController extends AbstractController
 
             $file = $request->files->get('post')['image'];
 
-            dump($file);
-
             if($file){
                 $filename = md5(uniqid()) . '.' . $file->guessClientExtension();
 
@@ -93,5 +91,6 @@ class PostController extends AbstractController
         $this->addFlash('delete', 'Post was removed');
         return $this->redirect($this->generateUrl('post.list'));
     }
+
 
 }
